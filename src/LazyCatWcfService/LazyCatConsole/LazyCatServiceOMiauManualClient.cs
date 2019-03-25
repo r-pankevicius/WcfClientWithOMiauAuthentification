@@ -7,6 +7,8 @@ namespace LazyCatConsole
 {
 	/// <summary>
 	/// Lazy Cat Service client with manually added support for OAMiau.
+	/// Service methods are overriden with new operator, OMiau headers are set there.
+	/// Source code level compatibility.
 	/// </summary>
 	public class LazyCatServiceOMiauManualClient : LazyCatServiceClient
 	{

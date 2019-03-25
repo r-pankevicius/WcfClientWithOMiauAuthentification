@@ -17,6 +17,8 @@ namespace LazyCatConsole
 
 		static async Task MainAsync()
 		{
+			Console.WriteLine("@@@@@@ Checking an ordinary WCF client @@@@@.\n");
+
 			Console.WriteLine("SumTwoNumbers_Anonymous_Sync");
 			ClientUsageScenarios.SumTwoNumbers_Anonymous_Sync();
 			Console.WriteLine("OK.\n");
@@ -45,12 +47,32 @@ namespace LazyCatConsole
 
 			Console.WriteLine("OK.\n");
 
+			Console.WriteLine("@@@@@@ Diving into level 1 @@@@@.\n");
+
 			Console.WriteLine("SumTwoNumbers_OMiau_Sync");
 			ClientUsageScenarios.SumTwoNumbers_OMiau_Sync();
 			Console.WriteLine("OK.\n");
 
 			Console.WriteLine("SumTwoNumbers_OMiau_Async");
 			await ClientUsageScenarios.SumTwoNumbers_OMiau_Async();
+			Console.WriteLine("OK.\n");
+
+			Console.WriteLine("@@@@@@ Diving into level 2 @@@@@.\n");
+
+			Console.WriteLine("SumTwoNumbers_Slim_Sync");
+			ClientUsageScenarios.SumTwoNumbers_Slim_Sync();
+			Console.WriteLine("OK.\n");
+
+			Console.WriteLine("SumTwoNumbers_Slim_Async");
+			await ClientUsageScenarios.SumTwoNumbers_Slim_Async();
+			Console.WriteLine("OK.\n");
+
+			Console.WriteLine("SumTwoNumbers_SlimOMiau_Sync");
+			ClientUsageScenarios.SumTwoNumbers_SlimOMiau_Sync();
+			Console.WriteLine("OK.\n");
+
+			Console.WriteLine("SumTwoNumbers_SlimOMiau_Async");
+			await ClientUsageScenarios.SumTwoNumbers_SlimOMiau_Async();
 			Console.WriteLine("OK.\n");
 		}
 	}

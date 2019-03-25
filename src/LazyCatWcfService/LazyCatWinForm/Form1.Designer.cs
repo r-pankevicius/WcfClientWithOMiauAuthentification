@@ -51,6 +51,7 @@
 			this.textBoxLog.Multiline = true;
 			this.textBoxLog.Name = "textBoxLog";
 			this.textBoxLog.ReadOnly = true;
+			this.textBoxLog.ScrollBars = System.Windows.Forms.ScrollBars.Both;
 			this.textBoxLog.Size = new System.Drawing.Size(762, 383);
 			this.textBoxLog.TabIndex = 1;
 			// 

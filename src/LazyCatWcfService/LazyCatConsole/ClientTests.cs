@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.ServiceModel;
-using System.Text;
+﻿using System.ServiceModel;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -14,6 +10,8 @@ namespace LazyCatConsole
 	/// </summary>
 	public class ClientTests
 	{
+		// Checking an ordinary WCF client
+
 		[Fact]
 		public void SumTwoNumbers_Anonymous_Sync()
 		{
@@ -33,6 +31,8 @@ namespace LazyCatConsole
 				() => ClientUsageScenarios.SumWithOMiauAuth_Anonymous_Fails_Sync());
 		}
 
+		// Diving into level 1
+
 		[Fact]
 		public void SumTwoNumbers_OMiau_Sync()
 		{
@@ -43,6 +43,32 @@ namespace LazyCatConsole
 		public async void SumTwoNumbers_OMiau_Async()
 		{
 			await ClientUsageScenarios.SumTwoNumbers_OMiau_Async();
+		}
+
+		// Diving into level 2
+
+		[Fact]
+		public void SumTwoNumbers_Slim_Sync()
+		{
+			ClientUsageScenarios.SumTwoNumbers_Slim_Sync();
+		}
+
+		[Fact]
+		public async Task SumTwoNumbers_Slim_Async()
+		{
+			await ClientUsageScenarios.SumTwoNumbers_Slim_Async();
+		}
+
+		[Fact]
+		public void SumTwoNumbers_SlimOMiau_Sync()
+		{
+			ClientUsageScenarios.SumTwoNumbers_SlimOMiau_Sync();
+		}
+
+		[Fact]
+		public async Task SumTwoNumbers_SlimOMiau_Async()
+		{
+			await ClientUsageScenarios.SumTwoNumbers_SlimOMiau_Async();
 		}
 	}
 }
