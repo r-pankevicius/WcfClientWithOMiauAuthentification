@@ -8,11 +8,11 @@ the same for OAuth2.
 
 _If you can do OMiau you will better understand OAuth2._
 
-###### LazyCatWcfService
+### LazyCatWcfService.csproj
 Start LazyCatWcfService project, the WCF service will be served on IIS Express at
 http://localhost:41193/LazyCatService.svc
 
-###### LazyCatConsole
+### LazyCatConsole.csproj
 Contains all the guts.
 The project contains xUnit tests, and simple console test-run for common client usage scenarios.
 2 levels of applying OMiau/OAuth authorization are shown and tested here.
@@ -40,6 +40,6 @@ the outside world. The implementation of service methods is hooked by intercepto
 This is level 2: use it if you have many WCF services, many methods or the service methods
 may change in future.
 
-###### LazyCatWinForm
+### LazyCatWinForm.csproj
 Uses service clients to replay common client usage scenarios to check that
 we don't block WinForms UI with async operations.
