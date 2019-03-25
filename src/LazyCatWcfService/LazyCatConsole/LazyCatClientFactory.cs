@@ -4,20 +4,57 @@ using System.Net;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace LazyCatConsole
 {
 	/// <summary>
-	/// Creates anonymous clients, e.g. clients as they were generated.
+	/// Creates Lazy Cat Service clients.
 	/// </summary>
-	static class LazyCatAnonymousClientFactory
+	static class LazyCatClientFactory
 	{
-		public static LazyCatServiceClient Create(string endpointUrl)
+		/// <summary>
+		/// Creates a standard generated WCF client.
+		/// </summary>
+		public static LazyCatServiceClient CreateAnonymousAuthClient(string endpointUrl)
 		{
 			var uri = new Uri(endpointUrl);
 			return new LazyCatServiceClient(
 				MakeSoap11BindingWithAnonymousAuth(uri), new EndpointAddress(uri));
 		}
+
+		public static LazyCatServiceOMiauManualClient CreateOMiauAuthClient(string endpointUrl)
+		{
+			var tokenService = new OMiauTokenService(endpointUrl);
+			var uri = new Uri(endpointUrl);
+			return new LazyCatServiceOMiauManualClient(
+				MakeSoap11BindingWithAnonymousAuth(uri), new EndpointAddress(uri), tokenService);
+		}
+
+		public class OMiauTokenService : ITokenService
+		{
+			const string CatId = "KOT VASYA";
+			const string CatSecret = "UNDER SOFA";
+
+			string m_EndpointUrl;
+
+			public OMiauTokenService(string endpointUrl)
+			{
+				m_EndpointUrl = endpointUrl;
+			}
+
+			public async Task<string> GetTokenAsync()
+			{
+				using (var client = CreateAnonymousAuthClient(m_EndpointUrl))
+				{
+					string token = await client.GetOMiauToken_WithClientCredentialsAsync(CatId, CatSecret);
+					return token;
+				}
+			}
+		}
+
+
+
 
 		//
 		// About MessageVersion.Soap11 vs MessageVersion.Soap12

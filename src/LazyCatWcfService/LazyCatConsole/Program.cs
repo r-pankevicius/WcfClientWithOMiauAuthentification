@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,6 +23,34 @@ namespace LazyCatConsole
 
 			Console.WriteLine("SumTwoNumbers_Anonymous_Async");
 			await ClientUsageScenarios.SumTwoNumbers_Anonymous_Async();
+			Console.WriteLine("OK.\n");
+
+			Console.WriteLine("SumWithOMiauAuth_Anonymous_Fails_Sync");
+			bool exceptionThrown = false;
+			try
+			{
+				ClientUsageScenarios.SumWithOMiauAuth_Anonymous_Fails_Sync();
+			}
+			catch (FaultException<ExceptionDetail> ex)
+			{
+				exceptionThrown = true;
+				Console.WriteLine("Got FaultException AS EXPECTED: {0}", ex.Message);
+			}
+
+			if (!exceptionThrown)
+			{
+				Console.WriteLine("FAIL - OMiau protected method can be accessed with Anonymous auth.");
+				return;
+			}
+
+			Console.WriteLine("OK.\n");
+
+			Console.WriteLine("SumTwoNumbers_OMiau_Sync");
+			ClientUsageScenarios.SumTwoNumbers_OMiau_Sync();
+			Console.WriteLine("OK.\n");
+
+			Console.WriteLine("SumTwoNumbers_OMiau_Async");
+			await ClientUsageScenarios.SumTwoNumbers_OMiau_Async();
 			Console.WriteLine("OK.\n");
 		}
 	}

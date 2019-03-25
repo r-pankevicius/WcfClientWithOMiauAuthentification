@@ -6,14 +6,21 @@ namespace LazyCatWcfService
 	[ServiceContract]
 	public interface ILazyCatService
 	{
-
+		/// <summary>
+		/// This service method can be accessed anonymously.
+		/// </summary>
 		[OperationContract]
 		int SumWithAnonymousAuth(int a, int b);
 
+		/// <summary>
+		/// This service method can be accessed only with OMiau authentification.
+		/// Obtain OMiau token by calling <see cref="GetOMiauToken_WithClientCredentials(string, string)"/>.
+		/// </summary>
 		[OperationContract]
 		int SumWithOMiauAuth(int a, int b);
 
 		/// <summary>
+		/// Returns OMiau token, if Cat ID and Cat Secret are correct.
 		/// Similar to https://www.oauth.com/oauth2-servers/access-tokens/client-credentials/
 		/// </summary>
 		[OperationContract]
