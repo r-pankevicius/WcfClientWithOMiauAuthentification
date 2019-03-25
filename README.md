@@ -4,11 +4,11 @@ including not yet standartized OMiau authentification.
 
 _If you can do OMiau you will better understand OAuth2._
 
-###### LazyCatWcfService
+### LazyCatWcfService.csproj
 Start LazyCatWcfService project, the WCF service will be served on IIS Express at
 http://localhost:41193/LazyCatService.svc
 
-###### LazyCatConsole
+### LazyCatConsole.csproj
 Contains all the guts.
 
 __LazyCatServiceClient / LazyCatClientFactory.CreateAnonymousAuthClient()__
@@ -23,6 +23,6 @@ compatibility level with LazyCatServiceClient.
 
 The project contains xUnit tests, and simple console test-run for common client usage scenarios.
 
-###### LazyCatWinForm
+### LazyCatWinForm.csproj
 Uses service clients to replay common client usage scenarios to check that
 we don't block WinForms UI with async operations.
