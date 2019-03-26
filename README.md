@@ -2,9 +2,12 @@
 Simple migration of WFC clients to support OAuth2 or whatever authentification,
 including not yet standartized OMiau authentification.
 
-Use for porting legacy WCF clients to support OAuth2 (or whatever).
+Use for fast porting of legacy WCF clients to support legacy WCF services that just
+added OAuth2 (or whatever authorization).
 This example shows how to add support for OMiau authentification, but everything is
 the same for OAuth2.
+
+![In Lazy Cats Studio office](./AssEtc-s/WcfOMiau.jpg)
 
 _If you can do OMiau you will better understand OAuth2._
 
