@@ -33,6 +33,10 @@ Debugger-Pass-Through-s so you and me can debug what's going on._
 It's more likely that you used not anonymous authentification, but basic or other,
 what WCF gives you out of the box.
 
+![](./AssEtc-s/green-box.png) Shall work because it worked for 10 years in production right?
+It's more likely that you used not anonymous authentification, but basic or other,
+what WCF gives you out of the box.
+
 __LazyCatServiceOMiauManualClient / LazyCatClientFactory.CreateOMiauAuthClient()__
 
 Manually handcrafted WCF client with OMiau authentification. Supports "source code" 
