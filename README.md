@@ -25,6 +25,10 @@ __LazyCatServiceClient / LazyCatClientFactory.CreateAnonymousAuthClient()__
 Generated standard WCF client (via Add Service Reference in Visual Studio,
 using Task-based async operations option). Anonymous authorization.
 
+![](./AssEtc-s/green-box.png) Shall work because it worked for 10 years in production right?
+It's more likely that you used not anonymous authentification, but basic or other,
+what WCF gives you out of the box.
+
 __LazyCatServiceOMiauManualClient / LazyCatClientFactory.CreateOMiauAuthClient()__
 
 Manually handcrafted WCF client with OMiau authentification. Supports "source code" 
@@ -34,6 +38,8 @@ with new operator, OMiau/OAuth2 headers are set there, inside new service method
 This is level 1: use it if you have few WCF services, few methods and the service
 methods are quite stable and will not change in future.
 
+![](./AssEtc-s/green-box.png) Level 1 works as it was tested at Lazy Cats Studio.
+
 __ILazyCatServiceSlimClient / LazyCatClientFactory.CreateOMiauAuthSlimClient()__
 
 "Slim" WCF service client, consists only of [service interface + IDisposable] interface to
@@ -42,6 +48,12 @@ the outside world. The implementation of service methods is hooked by intercepto
 
 This is level 2: use it if you have many WCF services, many methods or the service methods
 may change in future.
+
+![](./AssEtc-s/red-box.png) Level 2 pretends to work but doesn't work as it should, actually.
+
+To fix, RTFM: https://github.com/JSkimming/Castle.Core.AsyncInterceptor/tree/hacking-for-async-fix
+
+To fix, Read code review by Matt Connew at https://github.com/dotnet/wcf/issues/3472#issuecomment-478127943
 
 ### LazyCatWinForm.csproj
 Uses service clients to replay common client usage scenarios to check that
