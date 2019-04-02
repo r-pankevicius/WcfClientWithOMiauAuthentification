@@ -11,6 +11,8 @@ the same for OAuth2.
 
 _If you can do OMiau you will better understand OAuth2._
 
+_But if you can't OMiau I would not trust you to secure my credit card with your loose knowledge about OAuth2._
+
 ### LazyCatWcfService.csproj
 Start LazyCatWcfService project, the WCF service will be served on IIS Express at
 http://localhost:41193/LazyCatService.svc
@@ -24,6 +26,8 @@ __LazyCatServiceClient / LazyCatClientFactory.CreateAnonymousAuthClient()__
 
 Generated standard WCF client (via Add Service Reference in Visual Studio,
 using Task-based async operations option). Anonymous authorization.
+Then I moved all generated stuff to Service_Reference.cs and removed all
+Debugger-Pass-Through-s so you and me can debug what's going on._
 
 ![](./AssEtc-s/green-box.png) Shall work because it worked for 10 years in production right?
 It's more likely that you used not anonymous authentification, but basic or other,

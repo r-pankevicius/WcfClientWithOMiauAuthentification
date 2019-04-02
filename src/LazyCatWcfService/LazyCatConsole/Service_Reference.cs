@@ -38,7 +38,6 @@ namespace LazyCatConsole.LazyCatServiceReference {
     public interface ILazyCatServiceChannel : LazyCatConsole.LazyCatServiceReference.ILazyCatService, System.ServiceModel.IClientChannel {
     }
     
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     public partial class LazyCatServiceClient : System.ServiceModel.ClientBase<LazyCatConsole.LazyCatServiceReference.ILazyCatService>, LazyCatConsole.LazyCatServiceReference.ILazyCatService {
         

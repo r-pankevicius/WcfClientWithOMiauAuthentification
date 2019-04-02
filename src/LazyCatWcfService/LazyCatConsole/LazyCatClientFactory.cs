@@ -52,11 +52,12 @@ namespace LazyCatConsole
 			// Intercept slim client methods - service interface methods + IDisposable methods
 			var interceptor = new SlimServiceClientInterceptor<ILazyCatService>(realClient, tokenService);
 
-			var wrappedClient = (ILazyCatServiceSlimClient)ProxyGenerator.CreateInterfaceProxyWithoutTarget(
+			var wrappedSyncClient = (ILazyCatServiceSlimClient)ProxyGenerator.CreateInterfaceProxyWithoutTarget(
 				typeof(ILazyCatServiceSlimClient),
 				interceptor);
 
-			return wrappedClient;
+
+			return wrappedSyncClient;
 		}
 
 		#region Internals
