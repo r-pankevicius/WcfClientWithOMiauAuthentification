@@ -1,4 +1,5 @@
 ﻿using LazyCatConsole.LazyCatServiceReference;
+using System;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Threading.Tasks;
@@ -25,17 +26,44 @@ namespace LazyCatConsole
 			// This async syntax doesn't block WinForms UI
 			string accessToken = Task.Run(async () => await m_TokenService.GetTokenAsync()).Result;
 
-			// For more information how to apply access token see
-			// https://blogs.msdn.microsoft.com/mrochon/2015/11/19/using-oauth2-with-soap/
-			using (var scope = new OperationContextScope(InnerChannel))
+			try
 			{
-				var httpRequestProperty = new HttpRequestMessageProperty();
-				httpRequestProperty.Headers[System.Net.HttpRequestHeader.Authorization] =
-					$"Bearer {accessToken}";
-				OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
-					httpRequestProperty;
+				// For more information how to apply access token see
+				// https://blogs.msdn.microsoft.com/mrochon/2015/11/19/using-oauth2-with-soap/
+				using (var scope = new OperationContextScope(InnerChannel))
+				{
+					var httpRequestProperty = new HttpRequestMessageProperty();
+					httpRequestProperty.Headers[System.Net.HttpRequestHeader.Authorization] =
+						$"Bearer {accessToken}";
+					OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
+						httpRequestProperty;
 
-				return base.SumWithOMiauAuth(a, b);
+					return base.SumWithOMiauAuth(a, b);
+				}
+			}
+			catch (FaultException ex)
+			{
+				// Very primitive exception handling, but good enough for Lazy Cats Studio
+				if (ex.Message == "🔒 Unrecognized Bearer.")
+				{
+					// Try to refresh token
+					string newToken = Task.Run(async () => await m_TokenService.GetTokenAsync()).Result;
+					if (newToken != accessToken)
+					{
+						using (var scope = new OperationContextScope(InnerChannel))
+						{
+							var httpRequestProperty = new HttpRequestMessageProperty();
+							httpRequestProperty.Headers[System.Net.HttpRequestHeader.Authorization] =
+								$"Bearer {newToken}";
+							OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
+								httpRequestProperty;
+
+							return base.SumWithOMiauAuth(a, b);
+						}
+					}
+				}
+
+				throw;
 			}
 		}
 
@@ -49,13 +77,38 @@ namespace LazyCatConsole
 			// See https://stackoverflow.com/a/22753055 how to get away with it.
 			using (var scope = new FlowingOperationContextScope(InnerChannel))
 			{
-				var httpRequestProperty = new HttpRequestMessageProperty();
-				httpRequestProperty.Headers[System.Net.HttpRequestHeader.Authorization] =
-					$"Bearer {accessToken}";
-				OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
-					httpRequestProperty;
+				try
+				{
+					var httpRequestProperty = new HttpRequestMessageProperty();
+					httpRequestProperty.Headers[System.Net.HttpRequestHeader.Authorization] =
+						$"Bearer {accessToken}";
+					OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
+						httpRequestProperty;
 
-				return await base.SumWithOMiauAuthAsync(a, b).ContinueOnScope(scope);
+					return await base.SumWithOMiauAuthAsync(a, b).ContinueOnScope(scope);
+				}
+				catch (AggregateException ex)
+				{
+					// Very primitive exception handling, but good enough for Lazy Cats Studio
+					var faultException = ex.GetBaseException() as FaultException;
+					if (faultException?.Message == "🔒 Unrecognized Bearer.")
+					{
+						// Try to refresh token
+						string newToken = await m_TokenService.GetTokenAsync().ContinueOnScope(scope);
+						if (newToken != accessToken)
+						{
+							var httpRequestProperty = new HttpRequestMessageProperty();
+							httpRequestProperty.Headers[System.Net.HttpRequestHeader.Authorization] =
+								$"Bearer {newToken}";
+							OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
+								httpRequestProperty;
+
+							return await base.SumWithOMiauAuthAsync(a, b).ContinueOnScope(scope);
+						}
+					}
+
+					throw;
+				}
 			}
 		}
 	}
