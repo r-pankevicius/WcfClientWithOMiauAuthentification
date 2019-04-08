@@ -34,6 +34,12 @@ namespace LazyCatConsole
 		public static LazyCatServiceOMiauManualClient CreateOMiauAuthClient(string endpointUrl)
 		{
 			var tokenService = new OMiauTokenService(endpointUrl);
+			return CreateOMiauAuthClient(endpointUrl, tokenService);
+		}
+
+		public static LazyCatServiceOMiauManualClient CreateOMiauAuthClient(
+			string endpointUrl, ITokenService tokenService)
+		{
 			var uri = new Uri(endpointUrl);
 			return new LazyCatServiceOMiauManualClient(
 				MakeSoap11BindingWithAnonymousAuth(uri), new EndpointAddress(uri), tokenService);
@@ -45,7 +51,12 @@ namespace LazyCatConsole
 		public static ILazyCatServiceSlimClient CreateOMiauAuthSlimClient(string endpointUrl)
 		{
 			var tokenService = new OMiauTokenService(endpointUrl);
+			return CreateOMiauAuthSlimClient(endpointUrl, tokenService);
+		}
 
+		public static ILazyCatServiceSlimClient CreateOMiauAuthSlimClient(
+			string endpointUrl, ITokenService tokenService)
+		{
 			// Create a real service client, Anonymous auth
 			var realClient = CreateAnonymousAuthClient(endpointUrl);
 
@@ -62,7 +73,7 @@ namespace LazyCatConsole
 
 		#region Internals
 
-		class OMiauTokenService : ITokenService
+		internal class OMiauTokenService : ITokenService
 		{
 			const string CatId = "KOT VASYA";
 			const string CatSecret = "UNDER SOFA";

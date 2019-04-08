@@ -13,39 +13,72 @@ namespace LazyCatConsole
 		// Checking an ordinary WCF client
 
 		[Fact]
-		public void SumTwoNumbers_Anonymous_Sync()
+		public void SumTwoNumbers_StandardClient_Anonymous_Sync()
 		{
-			ClientUsageScenarios.SumTwoNumbers_Anonymous_Sync();
+			ClientUsageScenarios.SumTwoNumbers_StandardClient_Anonymous_Sync();
 		}
 
 		[Fact]
-		public async void SumTwoNumbers_Anonymous_Async()
+		public async void SumTwoNumbers_StandardClient_Anonymous_Async()
 		{
-			await ClientUsageScenarios.SumTwoNumbers_Anonymous_Async();
+			await ClientUsageScenarios.SumTwoNumbers_StandardClient_Anonymous_Async();
 		}
 
 		[Fact]
-		public void SumWithOMiauAuth_Anonymous_Fails_Sync()
+		public void SumWithOMiauAuth_StandardClient_Anonymous_Fails_Sync()
 		{
 			Assert.Throws<FaultException<ExceptionDetail>>(
-				() => ClientUsageScenarios.SumWithOMiauAuth_Anonymous_Fails_Sync());
-		}
-
-		// Diving into level 1
-
-		[Fact]
-		public void SumTwoNumbers_OMiau_Sync()
-		{
-			ClientUsageScenarios.SumTwoNumbers_OMiau_Sync();
+				() => ClientUsageScenarios.SumWithOMiauAuth_StandardClient_Anonymous_Fails_Sync());
 		}
 
 		[Fact]
-		public async void SumTwoNumbers_OMiau_Async()
+		public async void SumWithOMiauAuth_Manual_Anonymous_Fails_Async()
 		{
-			await ClientUsageScenarios.SumTwoNumbers_OMiau_Async();
+			await Assert.ThrowsAsync<FaultException<ExceptionDetail>>(
+				async () =>
+				await ClientUsageScenarios.SumWithOMiauAuth_StandardClient_Anonymous_Fails_Async()
+				);
 		}
 
-		// Diving into level 2
+		// Diving into level 1 - Manual client
+
+		[Fact]
+		public void SumTwoNumbers_ManualClient_Anonymous_Sync()
+		{
+			ClientUsageScenarios.SumTwoNumbers_ManualClient_Anonymous_Sync();
+		}
+
+		[Fact]
+		public async void SumTwoNumbers_ManualClient_Anonymous_Async()
+		{
+			await ClientUsageScenarios.SumTwoNumbers_ManualClient_Anonymous_Async();
+		}
+
+		[Fact]
+		public void SumTwoNumbers_ManualClient_OMiau_Sync()
+		{
+			ClientUsageScenarios.SumTwoNumbers_ManualClient_OMiau_Sync();
+		}
+
+		[Fact]
+		public void SumTwoNumbers_ManualClient_OMiau_Handles_ExpiredToken_Sync()
+		{
+			ClientUsageScenarios.SumTwoNumbers_ManualClient_OMiau_HandlesExpiredToken_Sync();
+		}
+
+		[Fact]
+		public async void SumTwoNumbers_ManualClient_OMiau_Async()
+		{
+			await ClientUsageScenarios.SumTwoNumbers_ManualClient_OMiau_Async();
+		}
+
+		[Fact]
+		public async void SumTwoNumbers_ManualClient_OMiau_HandlesExpiredToken_Async()
+		{
+			await ClientUsageScenarios.SumTwoNumbers_ManualClient_OMiau_HandlesExpiredToken_Async();
+		}
+
+		// Diving into level 2 - slim client
 
 		[Fact]
 		public void SumTwoNumbers_Slim_Sync()
@@ -66,9 +99,21 @@ namespace LazyCatConsole
 		}
 
 		[Fact]
+		public void SumTwoNumbers_SlimOMiau_HandlesExpiredToken_Sync()
+		{
+			ClientUsageScenarios.SumTwoNumbers_SlimOMiau_HandlesExpiredToken_Sync();
+		}
+
+		[Fact]
 		public async Task SumTwoNumbers_SlimOMiau_Async()
 		{
 			await ClientUsageScenarios.SumTwoNumbers_SlimOMiau_Async();
+		}
+
+		[Fact]
+		public async Task SumTwoNumbers_SlimOMiau_HandlesExpiredToken_Async()
+		{
+			await ClientUsageScenarios.SumTwoNumbers_SlimOMiau_HandlesExpiredToken_Async();
 		}
 	}
 }
