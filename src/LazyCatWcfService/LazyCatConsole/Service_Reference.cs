@@ -73,7 +73,8 @@ namespace LazyCatConsole.LazyCatServiceReference {
         }
         
         public System.Threading.Tasks.Task<int> SumWithOMiauAuthAsync(int a, int b) {
-            return base.Channel.SumWithOMiauAuthAsync(a, b);
+			var result = base.Channel.SumWithOMiauAuthAsync(a, b);
+			return result;
         }
         
         public string GetOMiauToken_WithClientCredentials(string cat_id, string cat_secret) {

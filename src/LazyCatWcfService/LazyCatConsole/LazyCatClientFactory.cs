@@ -1,10 +1,13 @@
 ﻿using Castle.DynamicProxy;
 using LazyCatConsole.LazyCatServiceReference;
 using System;
+using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace LazyCatConsole
 {
@@ -57,15 +60,24 @@ namespace LazyCatConsole
 			// Create a real service client, Anonymous auth
 			var realClient = CreateAnonymousAuthClient(endpointUrl);
 
-			// Intercept slim client methods - service interface methods + IDisposable methods
-			var interceptor = new SlimServiceClientInterceptor<ILazyCatService>(realClient, tokenService);
+			// Create a dispatcher for real client
+			var dispatcher = new SlimServiceClientDispatcher<ILazyCatService>(realClient);
 
-			var wrappedSyncClient = (ILazyCatServiceSlimClient)ProxyGenerator.CreateInterfaceProxyWithoutTarget(
+			// Generate real "object" of ILazyCatServiceSlimClient that will delegate calls
+			// to the dispatcher
+			var wrappedDispatcher = (ILazyCatServiceSlimClient)ProxyGenerator.CreateInterfaceProxyWithoutTarget(
 				typeof(ILazyCatServiceSlimClient),
-				interceptor);
+				dispatcher);
 
+			// Create async interceptor
+			var asyncInterceptor = new SlimServiceClientAsyncInterceptor<ILazyCatServiceSlimClient>(
+				wrappedDispatcher, realClient.InnerChannel, tokenService);
 
-			return wrappedSyncClient;
+			// Glue everything together
+			var wrappedSlimClient = ProxyGenerator.CreateInterfaceProxyWithTargetInterface(
+				wrappedDispatcher, asyncInterceptor);
+
+			return wrappedSlimClient;
 		}
 
 		#region Implementation
@@ -119,6 +131,5 @@ namespace LazyCatConsole
 		}
 
 		#endregion
-
 	}
 }

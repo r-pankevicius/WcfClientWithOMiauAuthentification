@@ -24,11 +24,11 @@ namespace LazyCatConsole
 			Console.WriteLine("OK.\n");
 
 			Console.WriteLine(nameof(ClientUsageScenarios.SumTwoNumbers_StandardClient_Anonymous_Async));
-			ClientUsageScenarios.SumTwoNumbers_StandardClient_Anonymous_Async();
+			await ClientUsageScenarios.SumTwoNumbers_StandardClient_Anonymous_Async();
 			Console.WriteLine("OK.\n");
 
 			Console.WriteLine(nameof(ClientUsageScenarios.SumTwoNumbers_StandardClient_Anonymous_Async));
-			ClientUsageScenarios.SumTwoNumbers_StandardClient_Anonymous_Async();
+			await ClientUsageScenarios.SumTwoNumbers_StandardClient_Anonymous_Async();
 			Console.WriteLine("OK.\n");
 
 			Console.WriteLine(nameof(ClientUsageScenarios.SumWithOMiauAuth_StandardClient_Anonymous_Fails_Sync));

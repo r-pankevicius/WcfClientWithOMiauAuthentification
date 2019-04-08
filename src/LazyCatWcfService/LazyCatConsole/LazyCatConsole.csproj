@@ -84,6 +84,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LazyCatClientFactory.cs" />
     <Compile Include="Service_Reference.cs" />
+    <Compile Include="SlimServiceClientAsyncInterceptor.cs" />
+    <Compile Include="SlimServiceClientAsyncInterceptor_Experimentz.cs" />
+    <Compile Include="SlimServiceClientDispatcher.cs" />
     <Compile Include="SlimServiceClientInterceptor.cs" />
   </ItemGroup>
   <ItemGroup>
