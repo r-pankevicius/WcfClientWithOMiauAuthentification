@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace LazyCatConsole
 {
-	// Some magic Andrew Nosenko
+	// Some magic by Andrew Nosenko
 	// https://stackoverflow.com/a/22753055
 
 

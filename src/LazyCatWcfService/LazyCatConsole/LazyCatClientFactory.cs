@@ -71,7 +71,7 @@ namespace LazyCatConsole
 
 			// Create async interceptor
 			var asyncInterceptor = new SlimServiceClientAsyncInterceptor<ILazyCatServiceSlimClient>(
-				wrappedDispatcher, realClient.InnerChannel, tokenService);
+				wrappedDispatcher, () => realClient.InnerChannel, tokenService);
 
 			// Glue everything together
 			var wrappedSlimClient = ProxyGenerator.CreateInterfaceProxyWithTargetInterface(

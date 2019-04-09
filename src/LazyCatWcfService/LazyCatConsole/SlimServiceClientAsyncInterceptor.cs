@@ -10,14 +10,14 @@ namespace LazyCatConsole
 	internal class SlimServiceClientAsyncInterceptor<TChannel> : IAsyncInterceptor where TChannel : class
 	{
 		TChannel m_Dispatcher;
-		IClientChannel m_ClientChannel;
+		Func<IClientChannel> m_GetClientChannel;
 		ITokenService m_TokenService;
 
 		public SlimServiceClientAsyncInterceptor(
-			TChannel dispatcher, IClientChannel clientChannel, ITokenService tokenService)
+			TChannel dispatcher, Func<IClientChannel> getClientChannel, ITokenService tokenService)
 		{
 			m_Dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
-			m_ClientChannel = clientChannel ?? throw new ArgumentNullException(nameof(clientChannel));
+			m_GetClientChannel = getClientChannel ?? throw new ArgumentNullException(nameof(m_GetClientChannel));
 			m_TokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
 		}
 
@@ -27,7 +27,8 @@ namespace LazyCatConsole
 			{
 				string accessToken = Task.Run(async () => await m_TokenService.GetTokenAsync()).Result;
 
-				using (var scope = new OperationContextScope(m_ClientChannel))
+				var channel = m_GetClientChannel();
+				using (var scope = new OperationContextScope(channel))
 				{
 					try
 					{
@@ -71,51 +72,96 @@ namespace LazyCatConsole
 		public void InterceptAsynchronous(IInvocation invocation)
 		{
 			throw new NotImplementedException(
-				"Lazy Cat Studio doesn't implement anything above what's needed for them. Feel free to fill the gap.");
+				"Lazy Cat Studio doesn't implement anything more what's needed for them. Feel free to fill the gap.");
 		}
 
-		public async void InterceptAsynchronous<TResult>(IInvocation invocation)
+		public void InterceptAsynchronous<TResult>(IInvocation invocation)
 		{
 			if (IsServiceMethodInvocation(invocation))
 			{
-				using (var scope = new FlowingOperationContextScope(m_ClientChannel))
+				var channel = m_GetClientChannel();
+				using (var scope = new OperationContextScope(channel))
 				{
-					string accessToken = await m_TokenService.GetTokenAsync().ContinueOnScope(scope);
-
-					try
+					var operationContext = OperationContext.Current;
+					m_TokenService.GetTokenAsync().ContinueWith(getTokenTask =>
 					{
+						string accessToken = getTokenTask.Result;
 						var httpRequestProperty = new HttpRequestMessageProperty();
 						httpRequestProperty.Headers[HttpRequestHeader.Authorization] =
 							$"Bearer {accessToken}";
-						OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
+						operationContext.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
 							httpRequestProperty;
-
 						invocation.Proceed();
 						var returnTask = (Task<TResult>)invocation.ReturnValue;
-						await returnTask.ContinueOnScope(scope);
-					}
-					catch (AggregateException ex)
-					{
-						// Very primitive exception handling, but good enough for Lazy Cats Studio
-						var faultException = ex.GetBaseException() as FaultException;
-						if (faultException?.Message == "🔒 Unrecognized Bearer.")
-						{
-							// Try to refresh token
-							string newToken = await m_TokenService.GetTokenAsync().ContinueOnScope(scope);
-							if (newToken != accessToken)
-							{
-								var httpRequestProperty = new HttpRequestMessageProperty();
-								httpRequestProperty.Headers[HttpRequestHeader.Authorization] =
-									$"Bearer {newToken}";
-								OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
-									httpRequestProperty;
 
-								// 2nd time it will fail = invocation.Proceed();
-								var returnTask = (Task<TResult>)invocation.ReturnValue;
-								await returnTask.ContinueOnScope(scope);
+						returnTask.ContinueWith(tsk =>
+						{
+							Console.WriteLine("LazyCancellation");
+
+							//var faultException = tsk.Exception.GetBaseException() as FaultException;
+							//if (faultException?.Message == "🔒 Unrecognized Bearer.")
+							{
+								// Very primitive exception handling, but good enough for what customers of
+								// Lazy Cats Studio are used to.
+								m_TokenService.GetTokenAsync().ContinueWith(refreshTokenTask =>
+								{
+									string newToken = refreshTokenTask.Result;
+									if (newToken == accessToken)
+									{
+										// If token refresh did not help, what we can do?
+										throw tsk.Exception;
+									}
+
+									httpRequestProperty = new HttpRequestMessageProperty();
+									httpRequestProperty.Headers[HttpRequestHeader.Authorization] =
+									$"Bearer {accessToken}";
+									operationContext.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
+									httpRequestProperty;
+									invocation.Proceed();
+								});
 							}
-						}
-					}
+
+
+						}, TaskContinuationOptions.LazyCancellation);
+
+						returnTask.ContinueWith(tsk =>
+						{
+							Console.WriteLine("NotOnRanToCompletion");
+						}, TaskContinuationOptions.NotOnRanToCompletion);
+
+						returnTask.ContinueWith(tsk =>
+						{
+							Console.WriteLine("OnlyOnCanceled");
+						}, TaskContinuationOptions.OnlyOnCanceled);
+
+						returnTask.ContinueWith(tsk =>
+						{
+							var faultException = tsk.Exception.GetBaseException() as FaultException;
+							if (faultException?.Message == "🔒 Unrecognized Bearer.")
+							{
+								// Very primitive exception handling, but good enough for what customers of
+								// Lazy Cats Studio are used to.
+								m_TokenService.GetTokenAsync().ContinueWith(refreshTokenTask =>
+								{
+									string newToken = refreshTokenTask.Result;
+									if (newToken == accessToken)
+									{
+										// If token refresh did not help, what we can do?
+										throw tsk.Exception;
+									}
+
+									httpRequestProperty = new HttpRequestMessageProperty();
+									httpRequestProperty.Headers[HttpRequestHeader.Authorization] =
+									$"Bearer {accessToken}";
+									operationContext.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
+									httpRequestProperty;
+									invocation.Proceed();
+								});
+							}
+						},
+						TaskContinuationOptions.OnlyOnFaulted).
+						Wait();
+					}).Wait();
 				}
 			}
 			else
