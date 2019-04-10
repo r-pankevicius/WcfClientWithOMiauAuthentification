@@ -8,38 +8,30 @@ namespace LazyCatConsole
 {
 	/// <summary>
 	/// Lazy Cat Service client with manually added support for OAMiau.
-	/// Service methods are overriden with new operator, OMiau headers are set there.
-	/// Source code level compatibility.
+	/// Service methods are overriden with new operator, OMiau headers are set by ChannelKeeper
+	/// message inspector.
+	/// Source code level compatibility, overriden methods.
+	/// It's better to fine tune source code of generated WCF client to replace origina methods with something
+	/// like this.
 	/// </summary>
 	public class LazyCatServiceOMiauManualClient : LazyCatServiceClient
 	{
-		ITokenService m_TokenService;
+		ChannelKeeper<ILazyCatService> m_OMiauChannel;
 
 		public LazyCatServiceOMiauManualClient(Binding binding, EndpointAddress address, ITokenService tokenService) :
 			base(binding, address)
 		{
-			m_TokenService = tokenService;
+			m_OMiauChannel = new ChannelKeeper<ILazyCatService>(binding, address, tokenService);
 		}
 
 		public new int SumWithOMiauAuth(int a, int b)
 		{
 			// This async syntax doesn't block WinForms UI
-			string accessToken = Task.Run(async () => await m_TokenService.GetTokenAsync()).Result;
+			string accessToken = Task.Run(async () => await m_OMiauChannel.RefreshTokenAsync()).Result;
 
 			try
 			{
-				// For more information how to apply access token see
-				// https://blogs.msdn.microsoft.com/mrochon/2015/11/19/using-oauth2-with-soap/
-				using (var scope = new OperationContextScope(InnerChannel))
-				{
-					var httpRequestProperty = new HttpRequestMessageProperty();
-					httpRequestProperty.Headers[System.Net.HttpRequestHeader.Authorization] =
-						$"Bearer {accessToken}";
-					OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
-						httpRequestProperty;
-
-					return base.SumWithOMiauAuth(a, b);
-				}
+				return base.SumWithOMiauAuth(a, b);
 			}
 			catch (FaultException ex)
 			{
@@ -47,19 +39,10 @@ namespace LazyCatConsole
 				if (ex.Message == "🔒 Unrecognized Bearer.")
 				{
 					// Try to refresh token
-					string newToken = Task.Run(async () => await m_TokenService.GetTokenAsync()).Result;
+					string newToken = Task.Run(async () => await m_OMiauChannel.RefreshTokenAsync()).Result;
 					if (newToken != accessToken)
 					{
-						using (var scope = new OperationContextScope(InnerChannel))
-						{
-							var httpRequestProperty = new HttpRequestMessageProperty();
-							httpRequestProperty.Headers[System.Net.HttpRequestHeader.Authorization] =
-								$"Bearer {newToken}";
-							OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
-								httpRequestProperty;
-
-							return base.SumWithOMiauAuth(a, b);
-						}
+						return base.SumWithOMiauAuth(a, b);
 					}
 				}
 
@@ -69,47 +52,34 @@ namespace LazyCatConsole
 
 		public new async Task<int> SumWithOMiauAuthAsync(int a, int b)
 		{
-			string accessToken = await m_TokenService.GetTokenAsync();
+			// This async syntax doesn't block WinForms UI
+			string accessToken = await m_OMiauChannel.RefreshTokenAsync();
 
-			// Using OperationContextScope in "async Dispose" scenario
-			// will cause System.InvalidOperationException :
-			// This OperationContextScope is being disposed on a different thread than it was created.
-			// See https://stackoverflow.com/a/22753055 how to get away with it.
-			using (var scope = new FlowingOperationContextScope(InnerChannel))
+			try
 			{
-				try
-				{
-					var httpRequestProperty = new HttpRequestMessageProperty();
-					httpRequestProperty.Headers[System.Net.HttpRequestHeader.Authorization] =
-						$"Bearer {accessToken}";
-					OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
-						httpRequestProperty;
-
-					return await base.SumWithOMiauAuthAsync(a, b).ContinueOnScope(scope);
-				}
-				catch (AggregateException ex)
-				{
-					// Very primitive exception handling, but good enough for Lazy Cats Studio
-					var faultException = ex.GetBaseException() as FaultException;
-					if (faultException?.Message == "🔒 Unrecognized Bearer.")
-					{
-						// Try to refresh token
-						string newToken = await m_TokenService.GetTokenAsync().ContinueOnScope(scope);
-						if (newToken != accessToken)
-						{
-							var httpRequestProperty = new HttpRequestMessageProperty();
-							httpRequestProperty.Headers[System.Net.HttpRequestHeader.Authorization] =
-								$"Bearer {newToken}";
-							OperationContext.Current.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
-								httpRequestProperty;
-
-							return await base.SumWithOMiauAuthAsync(a, b).ContinueOnScope(scope);
-						}
-					}
-
-					throw;
-				}
+				return base.SumWithOMiauAuth(a, b);
 			}
+			catch (FaultException ex)
+			{
+				// Very primitive exception handling, but good enough for Lazy Cats Studio
+				if (ex.Message == "🔒 Unrecognized Bearer.")
+				{
+					// Try to refresh token
+					string newToken = await m_OMiauChannel.RefreshTokenAsync();
+					if (newToken != accessToken)
+					{
+						return base.SumWithOMiauAuth(a, b);
+					}
+				}
+
+				throw;
+			}
+		}
+
+		protected override ILazyCatService CreateChannel()
+		{
+			// Method is overriden to return channel with message inspector
+			return m_OMiauChannel.CreateChannel();
 		}
 	}
 }

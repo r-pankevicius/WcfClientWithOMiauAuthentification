@@ -75,93 +75,18 @@ namespace LazyCatConsole
 				"Lazy Cat Studio doesn't implement anything more what's needed for them. Feel free to fill the gap.");
 		}
 
-		public void InterceptAsynchronous<TResult>(IInvocation invocation)
+		public async void InterceptAsynchronous<TResult>(IInvocation invocation)
 		{
+			invocation.Proceed();
+			/*
 			if (IsServiceMethodInvocation(invocation))
 			{
+				string accessToken = await m_TokenService.GetTokenAsync();
+
 				var channel = m_GetClientChannel();
 				using (var scope = new OperationContextScope(channel))
 				{
-					var operationContext = OperationContext.Current;
-					m_TokenService.GetTokenAsync().ContinueWith(getTokenTask =>
-					{
-						string accessToken = getTokenTask.Result;
-						var httpRequestProperty = new HttpRequestMessageProperty();
-						httpRequestProperty.Headers[HttpRequestHeader.Authorization] =
-							$"Bearer {accessToken}";
-						operationContext.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
-							httpRequestProperty;
-						invocation.Proceed();
-						var returnTask = (Task<TResult>)invocation.ReturnValue;
-
-						returnTask.ContinueWith(tsk =>
-						{
-							Console.WriteLine("LazyCancellation");
-
-							//var faultException = tsk.Exception.GetBaseException() as FaultException;
-							//if (faultException?.Message == "🔒 Unrecognized Bearer.")
-							{
-								// Very primitive exception handling, but good enough for what customers of
-								// Lazy Cats Studio are used to.
-								m_TokenService.GetTokenAsync().ContinueWith(refreshTokenTask =>
-								{
-									string newToken = refreshTokenTask.Result;
-									if (newToken == accessToken)
-									{
-										// If token refresh did not help, what we can do?
-										throw tsk.Exception;
-									}
-
-									httpRequestProperty = new HttpRequestMessageProperty();
-									httpRequestProperty.Headers[HttpRequestHeader.Authorization] =
-									$"Bearer {accessToken}";
-									operationContext.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
-									httpRequestProperty;
-									invocation.Proceed();
-								});
-							}
-
-
-						}, TaskContinuationOptions.LazyCancellation);
-
-						returnTask.ContinueWith(tsk =>
-						{
-							Console.WriteLine("NotOnRanToCompletion");
-						}, TaskContinuationOptions.NotOnRanToCompletion);
-
-						returnTask.ContinueWith(tsk =>
-						{
-							Console.WriteLine("OnlyOnCanceled");
-						}, TaskContinuationOptions.OnlyOnCanceled);
-
-						returnTask.ContinueWith(tsk =>
-						{
-							var faultException = tsk.Exception.GetBaseException() as FaultException;
-							if (faultException?.Message == "🔒 Unrecognized Bearer.")
-							{
-								// Very primitive exception handling, but good enough for what customers of
-								// Lazy Cats Studio are used to.
-								m_TokenService.GetTokenAsync().ContinueWith(refreshTokenTask =>
-								{
-									string newToken = refreshTokenTask.Result;
-									if (newToken == accessToken)
-									{
-										// If token refresh did not help, what we can do?
-										throw tsk.Exception;
-									}
-
-									httpRequestProperty = new HttpRequestMessageProperty();
-									httpRequestProperty.Headers[HttpRequestHeader.Authorization] =
-									$"Bearer {accessToken}";
-									operationContext.OutgoingMessageProperties[HttpRequestMessageProperty.Name] =
-									httpRequestProperty;
-									invocation.Proceed();
-								});
-							}
-						},
-						TaskContinuationOptions.OnlyOnFaulted).
-						Wait();
-					}).Wait();
+					invocation.Proceed();
 				}
 			}
 			else
@@ -169,6 +94,7 @@ namespace LazyCatConsole
 				throw new InvalidProgramException(
 					"Something went wrong because only service interface has async methods");
 			}
+			*/
 		}
 
 

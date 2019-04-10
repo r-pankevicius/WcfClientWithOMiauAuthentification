@@ -10,6 +10,7 @@ namespace LazyCatConsole
 	/// </summary>
 	public class ClientTests
 	{
+
 		// Checking an ordinary WCF client
 
 		[Fact]

@@ -73,9 +73,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChannelKeeper.cs" />
     <Compile Include="ClientTests.cs" />
     <Compile Include="ClientUsageScenarios.cs" />
     <Compile Include="FlowingOperationContextScope.cs" />
+    <Compile Include="Helpers.cs" />
     <Compile Include="ITokenService.cs" />
     <Compile Include="LazyCatServiceOMiauManualClient.cs" />
     <Compile Include="ILazyCatServiceSlimClient.cs" />
