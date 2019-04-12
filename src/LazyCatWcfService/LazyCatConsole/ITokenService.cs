@@ -7,6 +7,7 @@ namespace LazyCatConsole
 	/// </summary>
 	public interface ITokenService
 	{
+#warning Add param for the caller specify when token needs to be refreshed (cached one did not work)
 		Task<string> GetTokenAsync();
 	}
 }

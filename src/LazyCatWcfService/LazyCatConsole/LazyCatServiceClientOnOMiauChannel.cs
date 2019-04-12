@@ -24,6 +24,7 @@ namespace LazyCatConsole
 		protected override ILazyCatService CreateChannel()
 		{
 			// Method is overriden to return channel with message inspector
+			// which will add Bearer HTTP header with OMiau token
 			return ChannelHandler.CreateChannel();
 		}
 	}

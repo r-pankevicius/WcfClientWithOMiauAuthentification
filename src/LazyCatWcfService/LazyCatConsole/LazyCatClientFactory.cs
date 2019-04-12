@@ -1,16 +1,7 @@
 ﻿using Castle.DynamicProxy;
 using LazyCatConsole.LazyCatServiceReference;
 using System;
-using System.Linq;
-using System.Net;
-using System.Reflection;
 using System.ServiceModel;
-using System.ServiceModel.Channels;
-using System.ServiceModel.Configuration;
-using System.ServiceModel.Description;
-using System.ServiceModel.Dispatcher;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LazyCatConsole
 {
@@ -68,6 +59,7 @@ namespace LazyCatConsole
 			var realClient =
 				new LazyCatServiceClientOnOMiauChannel(binding, endpointAddress, tokenService);
 
+			// Intercept
 			var asyncInterceptor = new AngryCatAsyncInterceptor<ILazyCatService>(realClient);
 
 			// Glue everything together

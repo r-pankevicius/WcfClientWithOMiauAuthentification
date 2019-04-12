@@ -11,7 +11,7 @@ namespace LazyCatConsole
 	/// <summary>
 	/// Has token ready, when needed for message inspector.
 	/// </summary>
-	public interface IHaveToken
+	public interface IHaveTokenWhenNeeded
 	{
 		string Token { get; }
 	}
@@ -20,7 +20,7 @@ namespace LazyCatConsole
 	/// Ugly class to implement message inspector that will set Bearer header on call to the service.
 	/// </summary>
 	/// <typeparam name="TChannel"></typeparam>
-	public class OMiauChannelHandler<TChannel> : IHaveToken
+	public class OMiauChannelHandler<TChannel> : IHaveTokenWhenNeeded
 	{
 		readonly ChannelFactory<TChannel> m_Factory;
 		readonly ITokenService m_TokenService;
@@ -57,9 +57,9 @@ namespace LazyCatConsole
 
 		public class MessageInspector : IClientMessageInspector
 		{
-			IHaveToken m_MyToken;
+			IHaveTokenWhenNeeded m_MyToken;
 
-			public MessageInspector(IHaveToken accessToToken)
+			public MessageInspector(IHaveTokenWhenNeeded accessToToken)
 			{
 				m_MyToken = accessToToken ?? throw new ArgumentNullException(nameof(accessToToken));
 			}
@@ -84,9 +84,9 @@ namespace LazyCatConsole
 
 		public class EndpointBehavior : IEndpointBehavior
 		{
-			IHaveToken m_MyToken;
+			IHaveTokenWhenNeeded m_MyToken;
 
-			public EndpointBehavior(IHaveToken accessToToken)
+			public EndpointBehavior(IHaveTokenWhenNeeded accessToToken)
 			{
 				m_MyToken = accessToToken ?? throw new ArgumentNullException(nameof(accessToToken));
 			}

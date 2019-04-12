@@ -79,7 +79,6 @@
     <Compile Include="OMiauChannelHandler.cs" />
     <Compile Include="ClientTests.cs" />
     <Compile Include="ClientUsageScenarios.cs" />
-    <Compile Include="FlowingOperationContextScope.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="ITokenService.cs" />
     <Compile Include="LazyCatServiceOMiauManualClient.cs" />
@@ -89,8 +88,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LazyCatClientFactory.cs" />
     <Compile Include="Service_Reference.cs" />
-    <Compile Include="SlimServiceClientAsyncInterceptor.cs" />
-    <Compile Include="SlimServiceClientDispatcher.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

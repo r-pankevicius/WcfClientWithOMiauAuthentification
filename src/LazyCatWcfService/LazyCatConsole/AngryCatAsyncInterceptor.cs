@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Castle.DynamicProxy;
+using System;
 using System.ServiceModel;
-using System.Text;
 using System.Threading.Tasks;
-using Castle.DynamicProxy;
 
 namespace LazyCatConsole
 {
@@ -92,62 +89,6 @@ namespace LazyCatConsole
 				return await proceed(invocation);
 			}
 		}
-
-
-#if false
-		protected override Task<TResult> InterceptAsyncCore<TResult>(IInvocation invocation, Func<IInvocation, Task<TResult>> proceed)
-		{
-			if (!IsServiceMethodInvocation(invocation))
-			{
-				invocation.Proceed();
-				return proceed(invocation);
-			}
-
-			Task<string> getTokenReadyTask = m_Client.ChannelHandler.RefreshTokenAsync();
-			Task<TResult> invoke1 = getTokenReadyTask.ContinueWith((previous) =>
-			{
-				var serviceCall = proceed(invocation);
-				serviceCall.Wait();
-				return serviceCall.Result;
-			});
-
-			Task<string> refreshTokenTaskIfNeeded = invoke1.ContinueWith((previous) =>
-			{
-				if (previous.IsFaulted)
-				{
-					Task<string> ts = m_Client.ChannelHandler.RefreshTokenAsync();
-					ts.Wait();
-					string newToken = ts.Result;
-					if (newToken == getTokenReadyTask.Result)
-						throw previous.Exception.Flatten();
-
-					return "REPLAY";
-				}
-
-				return "OK";
-			});
-
-			Task<TResult> endChain = refreshTokenTaskIfNeeded.ContinueWith((previous) =>
-			{
-				if (previous.IsFaulted)
-				{
-					throw previous.Exception.Flatten();
-				}
-
-				if (previous.Result == "OK")
-				{
-					return invoke1.Result;
-				}
-
-				// Replay with new token
-				var serviceCall = proceed(invocation);
-				serviceCall.Wait();
-				return serviceCall.Result;
-			});
-
-			return endChain;
-		}
-#endif
 
 		protected override Task InterceptAsyncCore(IInvocation invocation, Func<IInvocation, Task> proceed)
 		{
