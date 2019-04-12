@@ -69,5 +69,12 @@ namespace LazyCatConsole
 
 			return wrappedSlimClient;
 		}
+
+		//// Level 3 - scarry!
+		//public static LazyCatServiceClient CreateLevel3Client(string endpointUrl)
+		//{
+		//	// -> You'll need to declare constructor + override CreateChannel
+		//	// no big save compared to level 2.
+		//}
 	}
 }

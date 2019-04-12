@@ -116,5 +116,12 @@ namespace LazyCatConsole
 		{
 			await ClientUsageScenarios.SumTwoNumbers_SlimOMiau_HandlesExpiredToken_Async();
 		}
+
+		//// L3
+		//[Fact]
+		//public void SumTwoNumbers_Level3_Sync()
+		//{
+		//	ClientUsageScenarios.SumTwoNumbers_Level3_Sync();
+		//}
 	}
 }

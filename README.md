@@ -79,7 +79,8 @@ __Level 3: It's only enough to override CreateChannel() on the class derived fro
 ...and everything else is made automagically. Requires more knowledge of what "transparent proxy" is
 because WCF channel is transparent proxy.
 
-![](./AssEtc-s/red-box.png) TODO
+![](./AssEtc-s/blue-box.png) No value, because you will need to have at least one constructor in derived
+class and it will be of the same value as Level 2.
 
 ### LazyCatWinForm.csproj
 Uses service clients to replay common client usage scenarios to check that

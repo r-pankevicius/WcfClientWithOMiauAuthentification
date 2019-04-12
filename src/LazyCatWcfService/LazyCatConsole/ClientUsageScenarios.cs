@@ -206,6 +206,17 @@ namespace LazyCatConsole
 			}
 		}
 
+		////
+		//// Level 3 - at stage of LOLCat Bible Project
+		////
+		//public static void SumTwoNumbers_Level3_Sync()
+		//{
+		//	using (var client = CreateLevel3Client(EndpointUrl))
+		//	{
+		//		TestSumTwoNumbersWithAnonymous(client);
+		//	}
+		//}
+
 		static void TestSumTwoNumbersWithAnonymous(ILazyCatService client)
 		{
 			var result = client.SumWithAnonymousAuth(2, 5);

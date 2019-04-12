@@ -76,6 +76,7 @@
     <Compile Include="AngryCatAsyncInterceptor.cs" />
     <Compile Include="AsyncInterceptorBaseHack.cs" />
     <Compile Include="LazyCatServiceClientOnOMiauChannel.cs" />
+    <Compile Include="Level3Client.cs" />
     <Compile Include="OMiauChannelHandler.cs" />
     <Compile Include="ClientTests.cs" />
     <Compile Include="ClientUsageScenarios.cs" />
