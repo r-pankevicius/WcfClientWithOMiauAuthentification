@@ -73,7 +73,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChannelKeeper.cs" />
+    <Compile Include="AngryCatAsyncInterceptor.cs" />
+    <Compile Include="AsyncInterceptorBaseHack.cs" />
+    <Compile Include="LazyCatServiceClientOnOMiauChannel.cs" />
+    <Compile Include="OMiauChannelHandler.cs" />
     <Compile Include="ClientTests.cs" />
     <Compile Include="ClientUsageScenarios.cs" />
     <Compile Include="FlowingOperationContextScope.cs" />
@@ -88,7 +91,6 @@
     <Compile Include="Service_Reference.cs" />
     <Compile Include="SlimServiceClientAsyncInterceptor.cs" />
     <Compile Include="SlimServiceClientDispatcher.cs" />
-    <Compile Include="SlimServiceClientInterceptor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

@@ -11,7 +11,7 @@ namespace LazyCatConsole
 	/// <summary>
 	/// Has token ready, when needed for message inspector.
 	/// </summary>
-	interface IHaveToken
+	public interface IHaveToken
 	{
 		string Token { get; }
 	}
@@ -20,19 +20,19 @@ namespace LazyCatConsole
 	/// Ugly class to implement message inspector that will set Bearer header on call to the service.
 	/// </summary>
 	/// <typeparam name="TChannel"></typeparam>
-	class ChannelKeeper<TChannel> : IDisposable, IHaveToken
+	public class OMiauChannelHandler<TChannel> : IHaveToken
 	{
 		readonly ChannelFactory<TChannel> m_Factory;
 		readonly ITokenService m_TokenService;
 
-		public ChannelKeeper(string endpointUrl, ITokenService tokenService) :
+		public OMiauChannelHandler(string endpointUrl, ITokenService tokenService) :
 			this(Helpers.MakeSoap11BindingWithAnonymousAuth(new Uri(endpointUrl)),
 				new EndpointAddress(endpointUrl),
 				tokenService)
 		{
 		}
 
-		public ChannelKeeper(Binding binding, EndpointAddress endpointAddress, ITokenService tokenService)
+		public OMiauChannelHandler(Binding binding, EndpointAddress endpointAddress, ITokenService tokenService)
 		{
 			m_TokenService = tokenService;
 
@@ -53,10 +53,6 @@ namespace LazyCatConsole
 		{
 			Token = await m_TokenService.GetTokenAsync();
 			return Token;
-		}
-
-		public void Dispose()
-		{
 		}
 
 		public class MessageInspector : IClientMessageInspector

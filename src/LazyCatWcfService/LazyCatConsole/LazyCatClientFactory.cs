@@ -58,37 +58,24 @@ namespace LazyCatConsole
 			return CreateOMiauAuthSlimClient(endpointUrl, tokenService);
 		}
 
-		/*public static ILazyCatServiceSlimClient CreateOMiauAuthSlimClient(
-			string endpointUrl, ITokenService tokenService)
-		{
-			// Create a real service client, Anonymous auth
-			var realClient = CreateAnonymousAuthClient(endpointUrl);
-
-			// Create a dispatcher for real client
-			var dispatcher = new SlimServiceClientDispatcher<ILazyCatService>(realClient);
-
-			// Generate real "object" of ILazyCatServiceSlimClient that will delegate calls
-			// to the dispatcher
-			var wrappedDispatcher = (ILazyCatServiceSlimClient)ProxyGenerator.CreateInterfaceProxyWithoutTarget(
-				typeof(ILazyCatServiceSlimClient),
-				dispatcher);
-
-			// Create async interceptor
-			var asyncInterceptor = new SlimServiceClientAsyncInterceptor<ILazyCatServiceSlimClient>(
-				wrappedDispatcher, () => realClient.InnerChannel, tokenService);
-
-			// Glue everything together
-			var wrappedSlimClient = ProxyGenerator.CreateInterfaceProxyWithTargetInterface(
-				wrappedDispatcher, asyncInterceptor);
-
-			return wrappedSlimClient;
-		}*/
-
 		public static ILazyCatServiceSlimClient CreateOMiauAuthSlimClient(
 			string endpointUrl, ITokenService tokenService)
 		{
-#warning TODO: needs redesign
-			throw new NotImplementedException();
+			// Create a real service client over OMiau channel
+			var uri = new Uri(endpointUrl);
+			var binding = Helpers.MakeSoap11BindingWithAnonymousAuth(uri);
+			var endpointAddress = new EndpointAddress(uri);
+			var realClient =
+				new LazyCatServiceClientOnOMiauChannel(binding, endpointAddress, tokenService);
+
+			var asyncInterceptor = new AngryCatAsyncInterceptor<ILazyCatService>(realClient);
+
+			// Glue everything together
+			var wrappedSlimClient = (ILazyCatServiceSlimClient)
+				ProxyGenerator.CreateInterfaceProxyWithTargetInterface(
+					typeof(ILazyCatServiceSlimClient), realClient, asyncInterceptor);
+
+			return wrappedSlimClient;
 		}
 	}
 }

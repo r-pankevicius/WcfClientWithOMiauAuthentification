@@ -14,20 +14,17 @@ namespace LazyCatConsole
 	/// It's better to fine tune source code of generated WCF client to replace origina methods with something
 	/// like this.
 	/// </summary>
-	public class LazyCatServiceOMiauManualClient : LazyCatServiceClient
+	public class LazyCatServiceOMiauManualClient : LazyCatServiceClientOnOMiauChannel
 	{
-		ChannelKeeper<ILazyCatService> m_OMiauChannel;
-
 		public LazyCatServiceOMiauManualClient(Binding binding, EndpointAddress address, ITokenService tokenService) :
-			base(binding, address)
+			base(binding, address, tokenService)
 		{
-			m_OMiauChannel = new ChannelKeeper<ILazyCatService>(binding, address, tokenService);
 		}
 
 		public new int SumWithOMiauAuth(int a, int b)
 		{
 			// This async syntax doesn't block WinForms UI
-			string accessToken = Task.Run(async () => await m_OMiauChannel.RefreshTokenAsync()).Result;
+			string accessToken = Task.Run(async () => await ChannelHandler.RefreshTokenAsync()).Result;
 
 			try
 			{
@@ -39,7 +36,7 @@ namespace LazyCatConsole
 				if (ex.Message == "🔒 Unrecognized Bearer.")
 				{
 					// Try to refresh token
-					string newToken = Task.Run(async () => await m_OMiauChannel.RefreshTokenAsync()).Result;
+					string newToken = Task.Run(async () => await ChannelHandler.RefreshTokenAsync()).Result;
 					if (newToken != accessToken)
 					{
 						return base.SumWithOMiauAuth(a, b);
@@ -53,7 +50,7 @@ namespace LazyCatConsole
 		public new async Task<int> SumWithOMiauAuthAsync(int a, int b)
 		{
 			// This async syntax doesn't block WinForms UI
-			string accessToken = await m_OMiauChannel.RefreshTokenAsync();
+			string accessToken = await ChannelHandler.RefreshTokenAsync();
 
 			try
 			{
@@ -65,7 +62,7 @@ namespace LazyCatConsole
 				if (ex.Message == "🔒 Unrecognized Bearer.")
 				{
 					// Try to refresh token
-					string newToken = await m_OMiauChannel.RefreshTokenAsync();
+					string newToken = await ChannelHandler.RefreshTokenAsync();
 					if (newToken != accessToken)
 					{
 						return base.SumWithOMiauAuth(a, b);
@@ -74,12 +71,6 @@ namespace LazyCatConsole
 
 				throw;
 			}
-		}
-
-		protected override ILazyCatService CreateChannel()
-		{
-			// Method is overriden to return channel with message inspector
-			return m_OMiauChannel.CreateChannel();
 		}
 	}
 }
