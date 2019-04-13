@@ -261,7 +261,7 @@ namespace LazyCatConsole
 		/// </summary>
 		class ExpiredTokenService : ITokenService
 		{
-			ITokenService m_RealTokenService;
+			readonly ITokenService m_RealTokenService;
 			int m_AccessCount = 0;
 
 			public ExpiredTokenService(string endpointUrl)
