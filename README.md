@@ -1,11 +1,11 @@
 # WCF client with OMiau authentification
-Simple migration of WFC clients to support OAuth2 or whatever authentification,
-including not yet standartized OMiau authentification. It's all about setting
-HTTP header _Authorization: Bearer token_.
+Simple migration of WFC clients to support OAuth2 or whatever authentification+authorization,
+including not yet standartized OMiau. It's all about setting
+HTTP header _Authorization: Bearer token_ on the client side.
 
-Use for fast porting of legacy WCF clients to support legacy WCF services that just
-added OAuth2 (or whatever authorization).
-This example shows how to add support for OMiau authentification, but everything is
+Use this _softare_ for fast porting of legacy WCF clients to support legacy WCF services that just
+added OAuth2 (or whatever auth).
+This example shows how to add support for OMiau authorization, but everything is
 the same for OAuth2.
 
 ![In Lazy Cats Studio office](./AssEtc-s/WcfOMiau.jpg)
@@ -20,7 +20,7 @@ Unit (integration) tests, Console app and WinForms app will use that endpoint.
 
 ### LazyCatConsole.csproj
 Contains all the guts.
-The project contains xUnit tests (integration test!), and simple console test-run
+The project contains xUnit tests (integration tests!), and simple console test-run
 for common client usage scenarios.
 2 levels of applying OMiau/OAuth authorization are shown and tested here.
 
@@ -44,7 +44,7 @@ with new operator, OMiau/OAuth2 headers are set there, inside service methods.
 They are set via 
 [See how much work is it to add these headers.](src/LazyCatWcfService/LazyCatConsole/LazyCatServiceOMiauManualClient.cs)
 But you can write 2 helpers like WrapServiceCall and WrapServiceCallAsync to simplify work
-needed to fine tune a service method call.
+needed to fine tune a service method call. (TODO: add wraps)
 
 This is level 1: use it if you have few WCF services, few methods and the service
 methods are quite stable and will not change in future.
@@ -67,7 +67,9 @@ __SailingRock__ (Microsoft) blog post "Using OAuth2 with SOAP". It shows that OA
 in SOAP header as well as in HTTP header.
 https://blogs.msdn.microsoft.com/mrochon/2015/11/19/using-oauth2-with-soap/
 
-
+__Andrew Nosenko__ showed how to get away with nasty System.InvalidOperationException when calling WCF client's
+Dispose in async service method - This OperationContextScope is being disposed on a different thread than it was created.
+https://stackoverflow.com/a/22753055
 
 __Level 2: ILazyCatServiceSlimClient / LazyCatClientFactory.CreateOMiauAuthSlimClient()__
 
@@ -78,24 +80,25 @@ the outside world. The implementation of service methods is hooked by intercepto
 This is level 2: use it if you have many WCF services, many methods or the service methods
 may change in future.
 
-
 References:
 https://github.com/JSkimming/Castle.Core.AsyncInterceptor
 
 ![](./AssEtc-s/green-box.png) Level 2 works as it was tested at Lazy Cats Studio.
 
-__Level 3: It's only enough to override CreateChannel() on the class derived from original client__
+__Readings__
+
+__Krzysztof Koźmic__ explained how to use Castle Windsor for codegen
+http://kozmic.net/category/castle/
+
+__Level 3: It's only enough to override CreateChannel() on the class generated derived from original client__
 ...and everything else is made automagically. Requires more knowledge of what "transparent proxy" is
 because WCF channel is transparent proxy.
 
-![](./AssEtc-s/blue-box.png) No value, because you will need to have at least one constructor in derived
-class and it will be of the same value as Level 2.
+![](./AssEtc-s/blue-box.png) The question 1 is if I can generate derived class?
 
 ### LazyCatWinForm.csproj
 Uses service clients to replay common client usage scenarios to check that
 we don't block WinForms UI with async operations.
 
-## Other links
 
-__Krzysztof Koźmic__ explained how to use Castle Windsor for codegen
-http://kozmic.net/category/castle/
+
