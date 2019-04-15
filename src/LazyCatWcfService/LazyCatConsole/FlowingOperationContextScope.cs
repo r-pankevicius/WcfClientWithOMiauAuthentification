@@ -11,8 +11,7 @@ namespace LazyCatConsole
 	/// Dispose in async service method -
 	/// This OperationContextScope is being disposed on a different thread than it was created.
 	/// </summary>
-	/// https://stackoverflow.com/a/22753055
-	/// <remarks
+	/// <remarks>https://stackoverflow.com/a/22753055</remarks>
 	public sealed class FlowingOperationContextScope : IDisposable
 	{
 		bool _inflight;
