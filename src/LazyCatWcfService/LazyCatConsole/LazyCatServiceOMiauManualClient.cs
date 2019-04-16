@@ -44,8 +44,7 @@ namespace LazyCatConsole
 				}
 				catch (FaultException ex)
 				{
-					// Very primitive exception handling, but good enough for Lazy Cats Studio
-					if (ex.Message == "🔒 Unrecognized Bearer.")
+					if (Helpers.CouldBeExpiredTokenException(ex))
 					{
 						// Try to refresh token
 						string newToken = Task.Run(async () =>
@@ -85,8 +84,7 @@ namespace LazyCatConsole
 				}
 				catch (AggregateException ex)
 				{
-					// Very primitive exception handling, but good enough for Lazy Cats Studio
-					if (ex.InnerException is FaultException && ex.InnerException.Message == "🔒 Unrecognized Bearer.")
+					if (Helpers.CouldBeExpiredTokenException(ex.InnerException))
 					{
 						// Try to refresh token
 						string newToken = await m_TokenService.GetTokenAsync().ContinueOnScope(scope);

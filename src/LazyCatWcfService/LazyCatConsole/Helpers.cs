@@ -99,5 +99,11 @@ namespace LazyCatConsole
 
 			return wrappedSlimClient;
 		}
+
+		public static bool CouldBeExpiredTokenException(Exception ex)
+		{
+			// Very primitive exception handling, but good enough for Lazy Cats Studio
+			return ex is FaultException fe && fe.Message == "🔒 Unrecognized Bearer.";
+		}
 	}
 }
