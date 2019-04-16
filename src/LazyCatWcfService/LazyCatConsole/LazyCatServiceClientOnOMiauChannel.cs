@@ -10,7 +10,9 @@ namespace LazyCatConsole
 	}
 
 	public class LazyCatServiceClientOnOMiauChannel :
-		LazyCatServiceClient, ILazyCatServiceSlimClient, IServiceClientOnOMiauChannel<ILazyCatService>
+		LazyCatServiceClient,
+		ILazyCatServiceSlimClient,
+		IServiceClientOnOMiauChannel<ILazyCatService>
 	{
 		public OMiauChannelHandler<ILazyCatService> ChannelHandler { get; private set; }
 

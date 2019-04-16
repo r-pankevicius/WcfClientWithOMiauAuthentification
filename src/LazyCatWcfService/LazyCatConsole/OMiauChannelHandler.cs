@@ -9,18 +9,25 @@ using System.Threading.Tasks;
 namespace LazyCatConsole
 {
 	/// <summary>
-	/// Has token ready, when needed for message inspector.
+	/// Interface to the message inspector to instruct it
+	/// about situation with tokens.
 	/// </summary>
-	public interface IHaveTokenWhenNeeded
+	public interface ITokenHandler
 	{
-		string Token { get; }
+		/// <summary>
+		/// Instructs to have token ready.
+		/// </summary>
+		/// <returns>Token</returns>
+		Task<string> MakeTokenReadyAsync(bool refreshNeeded = false);
+
+		string CurrentToken { get; }
 	}
 
 	/// <summary>
 	/// Ugly class to implement message inspector that will set Bearer header on call to the service.
 	/// </summary>
 	/// <typeparam name="TChannel"></typeparam>
-	public class OMiauChannelHandler<TChannel> : IHaveTokenWhenNeeded
+	public class OMiauChannelHandler<TChannel> : ITokenHandler
 	{
 		readonly ChannelFactory<TChannel> m_Factory;
 		readonly ITokenService m_TokenService;
@@ -42,26 +49,26 @@ namespace LazyCatConsole
 			m_Factory.Endpoint.Behaviors.Add(behavior);
 		}
 
-		public string Token { get; private set; }
-
 		public TChannel CreateChannel()
 		{
 			return m_Factory.CreateChannel();
 		}
 
-		public async Task<string> RefreshTokenAsync()
+		public string CurrentToken { get; set; }
+
+		public async Task<string> MakeTokenReadyAsync(bool refreshNeeded = false)
 		{
-			Token = await m_TokenService.GetTokenAsync();
-			return Token;
+			CurrentToken = await m_TokenService.GetTokenAsync(refreshNeeded);
+			return CurrentToken;
 		}
 
 		public class MessageInspector : IClientMessageInspector
 		{
-			IHaveTokenWhenNeeded m_MyToken;
+			readonly ITokenHandler m_TokenHandler;
 
-			public MessageInspector(IHaveTokenWhenNeeded accessToToken)
+			public MessageInspector(ITokenHandler accessToToken)
 			{
-				m_MyToken = accessToToken ?? throw new ArgumentNullException(nameof(accessToToken));
+				m_TokenHandler = accessToToken ?? throw new ArgumentNullException(nameof(accessToToken));
 			}
 
 			public void AfterReceiveReply(ref Message reply, object correlationState)
@@ -74,7 +81,7 @@ namespace LazyCatConsole
 				// this method is not async.
 				var httpRequestProperty = new HttpRequestMessageProperty();
 				httpRequestProperty.Headers[HttpRequestHeader.Authorization] =
-					$"Bearer {m_MyToken.Token}";
+					$"Bearer {m_TokenHandler.CurrentToken}";
 
 				request.Properties.Add(HttpRequestMessageProperty.Name, httpRequestProperty);
 
@@ -84,11 +91,11 @@ namespace LazyCatConsole
 
 		public class EndpointBehavior : IEndpointBehavior
 		{
-			IHaveTokenWhenNeeded m_MyToken;
+			readonly ITokenHandler m_TokenHandler;
 
-			public EndpointBehavior(IHaveTokenWhenNeeded accessToToken)
+			public EndpointBehavior(ITokenHandler accessToToken)
 			{
-				m_MyToken = accessToToken ?? throw new ArgumentNullException(nameof(accessToToken));
+				m_TokenHandler = accessToToken ?? throw new ArgumentNullException(nameof(accessToToken));
 			}
 
 			public void AddBindingParameters(ServiceEndpoint endpoint, BindingParameterCollection bindingParameters)
@@ -97,7 +104,7 @@ namespace LazyCatConsole
 
 			public void ApplyClientBehavior(ServiceEndpoint endpoint, ClientRuntime clientRuntime)
 			{
-				clientRuntime.MessageInspectors.Add(new MessageInspector(m_MyToken));
+				clientRuntime.MessageInspectors.Add(new MessageInspector(m_TokenHandler));
 			}
 
 			public void ApplyDispatchBehavior(ServiceEndpoint endpoint, EndpointDispatcher endpointDispatcher)

@@ -7,20 +7,25 @@ namespace LazyCatConsole
 		const string CatId = "KOT VASYA";
 		const string CatSecret = "UNDER SOFA";
 
-		string m_EndpointUrl;
+		readonly string m_EndpointUrl;
+		string m_CachedToken;
 
 		public OMiauTokenService(string endpointUrl)
 		{
 			m_EndpointUrl = endpointUrl;
 		}
 
-		public async Task<string> GetTokenAsync()
+		public async Task<string> GetTokenAsync(bool refreshNeeded = false)
 		{
-			using (var client = LazyCatClientFactory.CreateAnonymousAuthClient(m_EndpointUrl))
+			if (refreshNeeded || m_CachedToken == null)
 			{
-				string token = await client.GetOMiauToken_WithClientCredentialsAsync(CatId, CatSecret);
-				return token;
+				using (var client = LazyCatClientFactory.CreateAnonymousAuthClient(m_EndpointUrl))
+				{
+					m_CachedToken = await client.GetOMiauToken_WithClientCredentialsAsync(CatId, CatSecret);
+				}
 			}
+
+			return m_CachedToken;
 		}
 	}
 }

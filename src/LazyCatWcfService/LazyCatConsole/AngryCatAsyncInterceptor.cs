@@ -11,7 +11,7 @@ namespace LazyCatConsole
 	/// </summary>
 	class AngryCatAsyncInterceptor<TChannel> : AsyncInterceptorBaseHack where TChannel : class
 	{
-		IServiceClientOnOMiauChannel<TChannel> m_Client;
+		readonly IServiceClientOnOMiauChannel<TChannel> m_Client;
 
 		public AngryCatAsyncInterceptor(IServiceClientOnOMiauChannel<TChannel> client)
 		{
@@ -27,7 +27,7 @@ namespace LazyCatConsole
 
 			// This async syntax doesn't block WinForms UI
 			string accessToken = Task.Run(async () =>
-				await m_Client.ChannelHandler.RefreshTokenAsync()).Result;
+				await m_Client.ChannelHandler.MakeTokenReadyAsync()).Result;
 
 			try
 			{
@@ -42,7 +42,7 @@ namespace LazyCatConsole
 
 				// Try to refresh token
 				string newToken = Task.Run(async () =>
-					await m_Client.ChannelHandler.RefreshTokenAsync()).Result;
+					await m_Client.ChannelHandler.MakeTokenReadyAsync(refreshNeeded: true)).Result;
 				if (newToken == accessToken)
 				{
 					// Unauthorized not because of token being expired but for other reasons
@@ -63,7 +63,7 @@ namespace LazyCatConsole
 			}
 
 			// Tell message inspector to have token ready
-			string accessToken = await m_Client.ChannelHandler.RefreshTokenAsync();
+			string accessToken = await m_Client.ChannelHandler.MakeTokenReadyAsync();
 
 			try
 			{
@@ -78,7 +78,7 @@ namespace LazyCatConsole
 
 				// Try to refresh token
 				string newToken = Task.Run(async () =>
-					await m_Client.ChannelHandler.RefreshTokenAsync()).Result;
+					await m_Client.ChannelHandler.MakeTokenReadyAsync(refreshNeeded: true)).Result;
 				if (newToken == accessToken)
 				{
 					// Unauthorized not because of token being expired but for other reasons

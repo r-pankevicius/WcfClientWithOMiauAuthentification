@@ -261,24 +261,22 @@ namespace LazyCatConsole
 		/// </summary>
 		class ExpiredTokenService : ITokenService
 		{
-			ITokenService m_RealTokenService;
-			int m_AccessCount = 0;
+			readonly ITokenService m_RealTokenService;
+			string m_CachedToken = "EXPIRED-TOKEN";
 
 			public ExpiredTokenService(string endpointUrl)
 			{
 				m_RealTokenService = new OMiauTokenService(endpointUrl);
 			}
 
-			public async Task<string> GetTokenAsync()
+			public async Task<string> GetTokenAsync(bool refreshNeeded = false)
 			{
-				m_AccessCount++;
-
-				if (m_AccessCount == 1)
+				if (refreshNeeded)
 				{
-					return "EXPIRED-TOKEN";
+					m_CachedToken = await m_RealTokenService.GetTokenAsync();
 				}
 
-				return await m_RealTokenService.GetTokenAsync();
+				return m_CachedToken;
 			}
 		}
 

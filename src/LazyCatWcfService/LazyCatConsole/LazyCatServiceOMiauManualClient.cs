@@ -22,7 +22,7 @@ namespace LazyCatConsole
 		public new int SumWithOMiauAuth(int a, int b)
 		{
 			// This async syntax doesn't block WinForms UI
-			string accessToken = Task.Run(async () => await ChannelHandler.RefreshTokenAsync()).Result;
+			string accessToken = Task.Run(async () => await ChannelHandler.MakeTokenReadyAsync()).Result;
 
 			try
 			{
@@ -34,7 +34,7 @@ namespace LazyCatConsole
 				if (ex.Message == "🔒 Unrecognized Bearer.")
 				{
 					// Try to refresh token
-					string newToken = Task.Run(async () => await ChannelHandler.RefreshTokenAsync()).Result;
+					string newToken = Task.Run(async () => await ChannelHandler.MakeTokenReadyAsync(refreshNeeded: true)).Result;
 					if (newToken != accessToken)
 					{
 						return base.SumWithOMiauAuth(a, b);
@@ -48,7 +48,7 @@ namespace LazyCatConsole
 		public new async Task<int> SumWithOMiauAuthAsync(int a, int b)
 		{
 			// This async syntax doesn't block WinForms UI
-			string accessToken = await ChannelHandler.RefreshTokenAsync();
+			string accessToken = await ChannelHandler.MakeTokenReadyAsync();
 
 			try
 			{
@@ -60,7 +60,7 @@ namespace LazyCatConsole
 				if (ex.Message == "🔒 Unrecognized Bearer.")
 				{
 					// Try to refresh token
-					string newToken = await ChannelHandler.RefreshTokenAsync();
+					string newToken = await ChannelHandler.MakeTokenReadyAsync(refreshNeeded: true);
 					if (newToken != accessToken)
 					{
 						return base.SumWithOMiauAuth(a, b);
@@ -69,6 +69,15 @@ namespace LazyCatConsole
 
 				throw;
 			}
+		}
+	}
+
+	static class CommonStuff
+	{
+		public static TResult InvokeServiceMethod<TResult>(
+			)
+		{
+			return default(TResult);
 		}
 	}
 }
