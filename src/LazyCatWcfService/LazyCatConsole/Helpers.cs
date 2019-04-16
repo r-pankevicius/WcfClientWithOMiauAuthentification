@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Castle.DynamicProxy;
+using System;
 using System.Net;
+using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.Text;
 
@@ -7,6 +9,8 @@ namespace LazyCatConsole
 {
 	static class Helpers
 	{
+		internal static readonly ProxyGenerator ProxyGenerator = new ProxyGenerator();
+
 		//
 		// About MessageVersion.Soap11 vs MessageVersion.Soap12
 		//
@@ -53,6 +57,47 @@ namespace LazyCatConsole
 				bindingElement);
 
 			return binding;
+		}
+
+		/// <summary>
+		/// Creates dynamically generated slim WCF client that supports OMiau authorization.
+		/// </summary>
+		/// <typeparam name="TChannel">Service interface</typeparam>
+		/// <typeparam name="TSlimServiceClient">
+		/// Slim client interface (must derive from <typeparamref name="TChannel"/>)</typeparam>
+		/// <param name="realClient">Real service client</param>
+		/// <param name="tokenService">Token service</param>
+		/// <returns>Slim WCF client</returns>
+		public static TSlimServiceClient CreateSlimClient<TChannel, TSlimServiceClient>(
+			ClientBase<TChannel> realClient, ITokenService tokenService)
+			where TChannel : class
+			where TSlimServiceClient : class
+		{
+			if (realClient == null)
+				throw new ArgumentNullException(nameof(realClient));
+			if (tokenService == null)
+				throw new ArgumentNullException(nameof(tokenService));
+			if (!typeof(TChannel).IsAssignableFrom(typeof(TSlimServiceClient)))
+				throw new ArgumentNullException("Type arguments don't match.");
+
+			// Create a dispatcher for real client
+			var dispatcher = new SlimServiceClientDispatcher<TChannel>(realClient);
+
+			// Generate a "real object" of ILazyCatServiceSlimClient that will delegate calls
+			// to the dispatcher
+			var wrappedDispatcher = (TSlimServiceClient)ProxyGenerator.CreateInterfaceProxyWithoutTarget(
+				typeof(TSlimServiceClient),
+				dispatcher);
+
+			// Create async interceptor
+			var asyncInterceptor = new SlimServiceClientAsyncInterceptor<TSlimServiceClient>(
+				wrappedDispatcher, () => realClient.InnerChannel, tokenService);
+
+			// Glue everything together to get mind blowing wrapper Bacon Double Cheeseburger
+			var wrappedSlimClient = ProxyGenerator.CreateInterfaceProxyWithTargetInterface(
+				wrappedDispatcher, asyncInterceptor);
+
+			return wrappedSlimClient;
 		}
 	}
 }

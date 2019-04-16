@@ -16,6 +16,7 @@ namespace LazyCatConsole
 	/// when service methods are invoked.
 	/// </para>
 	/// </summary>
+	/// <typeparam name="TChannel">Service interface</typeparam>
 	class SlimServiceClientAsyncInterceptor<TChannel> : AsyncInterceptorBaseHack where TChannel : class
 	{
 		readonly TChannel m_Dispatcher;
@@ -23,10 +24,12 @@ namespace LazyCatConsole
 		readonly ITokenService m_TokenService;
 
 		public SlimServiceClientAsyncInterceptor(
-			TChannel dispatcher, Func<IClientChannel> getClientChannel, ITokenService tokenService)
+			TChannel dispatcher,
+			Func<IClientChannel> getClientChannel,
+			ITokenService tokenService)
 		{
 			m_Dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
-			m_GetClientChannel = getClientChannel ?? throw new ArgumentNullException(nameof(m_GetClientChannel));
+			m_GetClientChannel = getClientChannel ?? throw new ArgumentNullException(nameof(getClientChannel));
 			m_TokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
 		}
 
@@ -82,7 +85,6 @@ namespace LazyCatConsole
 				return await proceed(invocation);
 			}
 
-			// Tell message inspector to have token ready
 			string accessToken = await m_TokenService.GetTokenAsync();
 
 			var channel = m_GetClientChannel();
@@ -131,8 +133,7 @@ namespace LazyCatConsole
 			}
 
 			// void service methods (Task in async)? I don't need them for a moment.
-			throw new NotImplementedException(
-				"Lazy Cat Studio doesn't implement anything more what's needed for them. Feel free to fill the gap.");
+			throw new NotImplementedException("Void service methods were not implemented.");
 		}
 
 

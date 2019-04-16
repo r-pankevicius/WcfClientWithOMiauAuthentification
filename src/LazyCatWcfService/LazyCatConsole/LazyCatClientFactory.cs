@@ -10,8 +10,6 @@ namespace LazyCatConsole
 	/// </summary>
 	static class LazyCatClientFactory
 	{
-		static readonly ProxyGenerator ProxyGenerator = new ProxyGenerator();
-
 		/// <summary>
 		/// Creates a standard generated WCF client, Anonymous authorization.
 		/// </summary>
@@ -23,7 +21,7 @@ namespace LazyCatConsole
 		}
 
 		/// <summary>
-		/// Creates "level 1" manually handcrafted WCF client that supports OMiau authorization.
+		/// Creates manually handcrafted WCF client that supports OMiau authorization.
 		/// </summary>
 		public static LazyCatServiceOMiauManualClient CreateOMiauAuthClient(string endpointUrl)
 		{
@@ -41,7 +39,7 @@ namespace LazyCatConsole
 		}
 
 		/// <summary>
-		/// Creates "level 2" dynamically generated slim WCF client that supports OMiau authorization.
+		/// Creates dynamically generated slim WCF client that supports OMiau authorization.
 		/// </summary>
 		public static ILazyCatServiceSlimClient CreateOMiauAuthSlimClient(string endpointUrl)
 		{
@@ -50,32 +48,15 @@ namespace LazyCatConsole
 		}
 
 		/// <summary>
-		/// Creates "level 2" dynamically generated slim WCF client that supports OMiau authorization.
+		/// Creates dynamically generated slim WCF client that supports OMiau authorization.
 		/// </summary>
 		public static ILazyCatServiceSlimClient CreateOMiauAuthSlimClient(
 			string endpointUrl, ITokenService tokenService)
 		{
-			// Create a real service client, Anonymous auth
 			var realClient = CreateAnonymousAuthClient(endpointUrl);
-
-			// Create a dispatcher for real client
-			var dispatcher = new SlimServiceClientDispatcher<ILazyCatService>(realClient);
-
-			// Generate a "real object" of ILazyCatServiceSlimClient that will delegate calls
-			// to the dispatcher
-			var wrappedDispatcher = (ILazyCatServiceSlimClient)ProxyGenerator.CreateInterfaceProxyWithoutTarget(
-				typeof(ILazyCatServiceSlimClient),
-				dispatcher);
-
-			// Create async interceptor
-			var asyncInterceptor = new SlimServiceClientAsyncInterceptor<ILazyCatServiceSlimClient>(
-				wrappedDispatcher, () => realClient.InnerChannel, tokenService);
-
-			// Glue everything together to get mind blowing wrapper Bacon Double Cheeseburger
-			var wrappedSlimClient = ProxyGenerator.CreateInterfaceProxyWithTargetInterface(
-				wrappedDispatcher, asyncInterceptor);
-
-			return wrappedSlimClient;
+			var slimClient = Helpers.CreateSlimClient<ILazyCatService, ILazyCatServiceSlimClient>(
+				realClient, tokenService);
+			return slimClient;
 		}
 
 		//// Level 3 TODO
