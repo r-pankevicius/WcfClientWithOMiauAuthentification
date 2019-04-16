@@ -103,6 +103,12 @@ namespace LazyCatConsole
 		public static bool CouldBeExpiredTokenException(Exception ex)
 		{
 			// Very primitive exception handling, but good enough for Lazy Cats Studio
+			// More likely in real life:
+			// - ex is MessageSecurityException
+			// - ex.GetBaseException() is WebException webEx
+			// - webExc.Response is HttpWebResponse webResponse
+			// - webResponse.StatusCode == HttpStatusCode.Unauthorized
+
 			return ex is FaultException fe && fe.Message == "🔒 Unrecognized Bearer.";
 		}
 	}
