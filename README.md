@@ -42,6 +42,10 @@ Manually handcrafted WCF client with OMiau authentification. Supports "source co
 compatibility level with LazyCatServiceClient: service methods are overriden
 with new operator, OMiau/OAuth2 headers are set there, inside new service methods.
 
+Service method implementations are just one-liners with helpers
+WrapServiceMethodCall and WrapServiceMethodCallAsync.
+[See how much work is needed per method.](src/LazyCatWcfService/LazyCatConsole/LazyCatServiceOMiauManualClient.cs)
+
 Use it if you have few WCF services, few methods and the service
 methods are quite stable and will not change in future.
 
