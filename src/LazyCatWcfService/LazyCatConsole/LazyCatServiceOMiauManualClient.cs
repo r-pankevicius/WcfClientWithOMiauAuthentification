@@ -25,12 +25,32 @@ namespace LazyCatConsole
 
 		public new int SumWithOMiauAuth(int a, int b)
 		{
-			// This async syntax doesn't block WinForms UI
-			string accessToken = Task.Run(async () => await m_TokenService.GetTokenAsync()).Result;
+			return SharedStuff.WrapServiceMethodCall(
+				() => base.SumWithOMiauAuth(a, b), InnerChannel, m_TokenService);
+		}
+
+		public new async Task<int> SumWithOMiauAuthAsync(int a, int b)
+		{
+			return await SharedStuff.WrapServiceMethodCallAsync(
+				() => base.SumWithOMiauAuthAsync(a, b), InnerChannel, m_TokenService);
+		}
+	}
+
+	// These methods can be reused for other services, move to a separate file.
+	// I keep them here to show plumbing needed for service methods in one file.
+	static class SharedStuff
+	{
+		/// <summary>
+		/// Sync service method call
+		/// </summary>
+		public static TResult WrapServiceMethodCall<TResult>(
+			Func<TResult> invokeServiceMethod, IClientChannel clientChannel, ITokenService tokenService)
+		{
+			string accessToken = Task.Run(async () => await tokenService.GetTokenAsync()).Result;
 
 			// For more information how to apply access token see
 			// https://blogs.msdn.microsoft.com/mrochon/2015/11/19/using-oauth2-with-soap/
-			using (var scope = new OperationContextScope(InnerChannel))
+			using (var scope = new OperationContextScope(clientChannel))
 			{
 				var httpRequestProperty = new HttpRequestMessageProperty();
 				httpRequestProperty.Headers[System.Net.HttpRequestHeader.Authorization] =
@@ -40,7 +60,7 @@ namespace LazyCatConsole
 
 				try
 				{
-					return base.SumWithOMiauAuth(a, b);
+					return invokeServiceMethod();
 				}
 				catch (FaultException ex)
 				{
@@ -48,12 +68,12 @@ namespace LazyCatConsole
 					{
 						// Try to refresh token
 						string newToken = Task.Run(async () =>
-							await m_TokenService.GetTokenAsync()).Result;
+							await tokenService.GetTokenAsync()).Result;
 						if (newToken != accessToken)
 						{
 							httpRequestProperty.Headers[System.Net.HttpRequestHeader.Authorization] =
 								$"Bearer {newToken}";
-							return base.SumWithOMiauAuth(a, b);
+							return invokeServiceMethod();
 						}
 					}
 
@@ -62,15 +82,19 @@ namespace LazyCatConsole
 			}
 		}
 
-		public new async Task<int> SumWithOMiauAuthAsync(int a, int b)
+		/// <summary>
+		/// Async service method call
+		/// </summary>
+		public static async Task<TResult> WrapServiceMethodCallAsync<TResult>(
+			Func<Task<TResult>> invokeServiceMethod, IClientChannel clientChannel, ITokenService tokenService)
 		{
-			string accessToken = await m_TokenService.GetTokenAsync();
+			string accessToken = await tokenService.GetTokenAsync();
 
 			// Using OperationContextScope in "async Dispose" scenario
 			// will cause System.InvalidOperationException :
 			// This OperationContextScope is being disposed on a different thread than it was created.
 			// See https://stackoverflow.com/a/22753055 how to get away with it.
-			using (var scope = new FlowingOperationContextScope(InnerChannel))
+			using (var scope = new FlowingOperationContextScope(clientChannel))
 			{
 				var httpRequestProperty = new HttpRequestMessageProperty();
 				httpRequestProperty.Headers[System.Net.HttpRequestHeader.Authorization] =
@@ -80,19 +104,19 @@ namespace LazyCatConsole
 
 				try
 				{
-					return await base.SumWithOMiauAuthAsync(a, b).ContinueOnScope(scope);
+					return await invokeServiceMethod().ContinueOnScope(scope);
 				}
 				catch (AggregateException ex)
 				{
 					if (Helpers.CouldBeExpiredTokenException(ex.InnerException))
 					{
 						// Try to refresh token
-						string newToken = await m_TokenService.GetTokenAsync().ContinueOnScope(scope);
+						string newToken = await tokenService.GetTokenAsync().ContinueOnScope(scope);
 						if (newToken != accessToken)
 						{
 							httpRequestProperty.Headers[System.Net.HttpRequestHeader.Authorization] =
 								$"Bearer {newToken}";
-							return await base.SumWithOMiauAuthAsync(a, b).ContinueOnScope(scope);
+							return await invokeServiceMethod().ContinueOnScope(scope);
 						}
 					}
 
@@ -100,5 +124,6 @@ namespace LazyCatConsole
 				}
 			}
 		}
+
 	}
 }
