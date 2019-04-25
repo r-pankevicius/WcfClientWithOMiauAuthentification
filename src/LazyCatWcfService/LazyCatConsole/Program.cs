@@ -11,6 +11,13 @@ namespace LazyCatConsole
 	{
 		static void Main(string[] args)
 		{
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine("Under construction, use tests runner.\n");
+		}
+
+		/*
+		static void Main(string[] args)
+		{
 			MainAsync().GetAwaiter().GetResult();
 			Console.WriteLine("All tests passed OK.\n");
 		}
@@ -123,5 +130,6 @@ namespace LazyCatConsole
 			await ClientUsageScenarios.SumTwoNumbers_SlimOMiau_HandlesExpiredToken_Async();
 			Console.WriteLine("OK.\n");
 		}
+		*/
 	}
 }

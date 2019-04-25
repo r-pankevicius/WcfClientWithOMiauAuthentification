@@ -10,6 +10,29 @@ namespace LazyCatConsole
 	/// </summary>
 	static class LazyCatClientFactory
 	{
+		// Now it's important that factory is bound to more conventions
+		public readonly static string EndpointUrl = "http://localhost:41193/LazyCatService.svc";
+
+		/// <summary>
+		/// Creates a standard generated WCF client, Anonymous authorization.
+		/// </summary>
+		public static LazyCatServiceClient CreateAnonymousAuthClient()
+		{
+			var uri = new Uri(EndpointUrl);
+			return new LazyCatServiceClient(
+				Helpers.MakeSoap11BindingWithAnonymousAuth(uri), new EndpointAddress(uri));
+		}
+	}
+
+
+
+
+#if false
+	/// <summary>
+	/// Creates Lazy Cat Service clients.
+	/// </summary>
+	static class LazyCatClientFactory
+	{
 		static readonly ProxyGenerator ProxyGenerator = new ProxyGenerator();
 
 		/// <summary>
@@ -77,4 +100,5 @@ namespace LazyCatConsole
 		//	// no big save compared to level 2.
 		//}
 	}
+#endif
 }

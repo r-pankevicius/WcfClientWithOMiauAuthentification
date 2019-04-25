@@ -19,7 +19,7 @@ namespace LazyCatConsole
 		{
 			if (refreshNeeded || m_CachedToken == null)
 			{
-				using (var client = LazyCatClientFactory.CreateAnonymousAuthClient(m_EndpointUrl))
+				using (var client = LazyCatClientFactory.CreateAnonymousAuthClient())
 				{
 					m_CachedToken = await client.GetOMiauToken_WithClientCredentialsAsync(CatId, CatSecret);
 				}

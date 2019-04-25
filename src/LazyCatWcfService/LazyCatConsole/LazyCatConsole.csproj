@@ -75,6 +75,7 @@
   <ItemGroup>
     <Compile Include="AngryCatAsyncInterceptor.cs" />
     <Compile Include="AsyncInterceptorBaseHack.cs" />
+    <Compile Include="ClientUsageScenarios0.cs" />
     <Compile Include="LazyCatServiceClientOnOMiauChannel.cs" />
     <Compile Include="Level3Client.cs" />
     <Compile Include="OMiauChannelHandler.cs" />
@@ -89,6 +90,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LazyCatClientFactory.cs" />
     <Compile Include="Service_Reference.cs" />
+    <Compile Include="StolenFromCapri\AsyncClientMessageInspector.cs" />
+    <Compile Include="StolenFromCapri\ChannelFactoryExtensions.cs" />
+    <Compile Include="StolenFromCapri\ClientMessageInspectorBehavior.cs" />
+    <Compile Include="StolenFromCapri\DispatcherContinuation.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

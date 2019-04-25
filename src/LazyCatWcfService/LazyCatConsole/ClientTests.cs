@@ -41,6 +41,8 @@ namespace LazyCatConsole
 				);
 		}
 
+		/*
+
 		// Diving into level 1 - Manual client
 
 		[Fact]
@@ -123,5 +125,6 @@ namespace LazyCatConsole
 		//{
 		//	ClientUsageScenarios.SumTwoNumbers_Level3_Sync();
 		//}
+		*/
 	}
 }

@@ -1,4 +1,7 @@
 # WCF client with OMiau authentification
+
+![](./AssEtc-s/red-box.png) *Work in progress...**
+
 Simple migration of WFC clients to support OAuth2 or whatever authentification,
 including not yet standartized OMiau authentification.
 
