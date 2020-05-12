@@ -12,6 +12,21 @@ the same for OAuth2.
 
 _If you can do OMiau you will better understand OAuth2._
 
+### ...but most likely You aren't gonna need it (YAGNI)
+
+Use it only for multitenant apps where different clients need to have different
+Client ID - Client Secret pairs. Then you must find out that communication between
+Client and ChannelFactory is so limited that ChannelFactory can't get any specific
+needs from the client. Then you must recognize that WCF was not designed for it.
+Yes, if you will find that ChannelFactories eat memory and there is no easy way
+to manage their lifetimes as use-dispose Clients...
+Then and only then you will need it.
+
+Otherwise take a look at [Capri](https://github.com/mconnew/Capri) project, it should help you.
+
+### Dive deep only if you need it..
+...
+
 ### LazyCatWcfService.csproj
 Start LazyCatWcfService project, the WCF service will be served on IIS Express at
 http://localhost:41193/LazyCatService.svc
